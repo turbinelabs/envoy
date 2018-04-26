@@ -34,10 +34,15 @@ static_resources:
     type: strict_dns
     lb_policy: round_robin
     http2_protocol_options: {}
+    outlier_detection: {}
     hosts:
     - socket_address:
         address: service1
         port_value: 80
+    - socket_address:
+        address: service1
+        port_value: 81
+
   - name: service2
     connect_timeout: 0.25s
     type: strict_dns
@@ -53,3 +58,6 @@ admin:
     socket_address:
       address: 0.0.0.0
       port_value: 8001
+cluster_manager:
+  outlier_detection:
+    event_log_path: "/tmp/outliers.log"
