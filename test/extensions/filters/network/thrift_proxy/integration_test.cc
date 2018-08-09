@@ -47,6 +47,10 @@ public:
               name: "routes"
               routes:
                 - match:
+                    service_name: "svcname"
+                  route:
+                    cluster: "cluster_0"
+                - match:
                     method_name: "execute"
                   route:
                     cluster: "cluster_0"
