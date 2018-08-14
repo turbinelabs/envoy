@@ -108,6 +108,8 @@ RawConnectionDriver::RawConnectionDriver(uint32_t port, Buffer::Instance& initia
                                          Network::Address::IpVersion version) {
   api_.reset(new Api::Impl(std::chrono::milliseconds(10000)));
   dispatcher_ = api_->allocateDispatcher();
+  //  timer_ = dispatcher_->createTimer(
+  //      [this]() -> void { client_->close(Network::ConnectionCloseType::NoFlush); });
   client_ = dispatcher_->createClientConnection(
       Network::Utility::resolveUrl(
           fmt::format("tcp://{}:{}", Network::Test::getLoopbackAddressUrlString(version), port)),
@@ -115,20 +117,22 @@ RawConnectionDriver::RawConnectionDriver(uint32_t port, Buffer::Instance& initia
   client_->addReadFilter(Network::ReadFilterSharedPtr{new ForwardingFilter(*this, data_callback)});
   client_->write(initial_data, false);
 
-  timer_ = dispatcher_->createTimer(
-      [this]() -> void { client_->close(Network::ConnectionCloseType::FlushWrite); });
-  timer_->enableTimer(std::chrono::milliseconds(10000));
+  //  timer_->enableTimer(std::chrono::milliseconds(10000));
   client_->connect();
+  std::cout << "connect complete" << std::endl;
 }
 
 RawConnectionDriver::~RawConnectionDriver() {}
 
 void RawConnectionDriver::run() {
   dispatcher_->run(Event::Dispatcher::RunType::Block);
-  timer_->disableTimer();
+  //  timer_->disableTimer();
 }
 
-void RawConnectionDriver::close() { client_->close(Network::ConnectionCloseType::FlushWrite); }
+void RawConnectionDriver::close() {
+  //  timer_->disableTimer();
+  client_->close(Network::ConnectionCloseType::FlushWrite);
+}
 
 WaitForPayloadReader::WaitForPayloadReader(Event::Dispatcher& dispatcher)
     : dispatcher_(dispatcher) {}
