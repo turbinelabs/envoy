@@ -115,16 +115,18 @@ RawConnectionDriver::RawConnectionDriver(uint32_t port, Buffer::Instance& initia
   client_->addReadFilter(Network::ReadFilterSharedPtr{new ForwardingFilter(*this, data_callback)});
   client_->write(initial_data, false);
 
-  Event::TimerPtr timer = dispatcher_->createTimer(
+  timer_ = dispatcher_->createTimer(
       [this]() -> void { client_->close(Network::ConnectionCloseType::FlushWrite); });
-  timer->enableTimer(std::chrono::milliseconds(10000));
+  timer_->enableTimer(std::chrono::milliseconds(10000));
   client_->connect();
-  timer->disableTimer();
 }
 
 RawConnectionDriver::~RawConnectionDriver() {}
 
-void RawConnectionDriver::run() { dispatcher_->run(Event::Dispatcher::RunType::Block); }
+void RawConnectionDriver::run() {
+  dispatcher_->run(Event::Dispatcher::RunType::Block);
+  timer_->disableTimer();
+}
 
 void RawConnectionDriver::close() { client_->close(Network::ConnectionCloseType::FlushWrite); }
 

@@ -81,6 +81,7 @@ private:
   Api::ApiPtr api_;
   Event::DispatcherPtr dispatcher_;
   Network::ClientConnectionPtr client_;
+  Event::TimerPtr timer_;
 };
 
 /**
