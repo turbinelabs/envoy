@@ -113,8 +113,8 @@ RawConnectionDriver::RawConnectionDriver(uint32_t port, Buffer::Instance& initia
           fmt::format("tcp://{}:{}", Network::Test::getLoopbackAddressUrlString(version), port)),
       Network::Address::InstanceConstSharedPtr(), Network::Test::createRawBufferSocket(), nullptr);
   client_->addReadFilter(Network::ReadFilterSharedPtr{new ForwardingFilter(*this, data_callback)});
+  client_->addConnectionCallbacks(*this);
   client_->write(initial_data, false);
-
   client_->connect();
   std::cout << "connect complete" << std::endl;
 }
