@@ -114,7 +114,12 @@ RawConnectionDriver::RawConnectionDriver(uint32_t port, Buffer::Instance& initia
       Network::Address::InstanceConstSharedPtr(), Network::Test::createRawBufferSocket(), nullptr);
   client_->addReadFilter(Network::ReadFilterSharedPtr{new ForwardingFilter(*this, data_callback)});
   client_->write(initial_data, false);
+
+  Event::TimerPtr timer = dispatcher_->createTimer(
+      [this]() -> void { client_->close(Network::ConnectionCloseType::FlushWrite); });
+  timer->enableTimer(std::chrono::milliseconds(10000));
   client_->connect();
+  timer->disableTimer();
 }
 
 RawConnectionDriver::~RawConnectionDriver() {}
