@@ -126,7 +126,7 @@ RawConnectionDriver::~RawConnectionDriver() {}
 
 void RawConnectionDriver::run() {
   dispatcher_->run(Event::Dispatcher::RunType::Block);
-  //  timer_->disableTimer();
+  std::cout << "exit run" << std::endl;
 }
 
 void RawConnectionDriver::close() {

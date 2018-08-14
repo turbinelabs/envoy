@@ -35,6 +35,7 @@ void ConnectionHandlerImpl::removeListeners(uint64_t listener_tag) {
 void ConnectionHandlerImpl::stopListeners(uint64_t listener_tag) {
   for (auto& listener : listeners_) {
     if (listener.second->listener_tag_ == listener_tag) {
+      std::cout << "reset listener tag " << listener_tag << "(" << listener.first->asString() << ")" << std::endl;
       listener.second->listener_.reset();
     }
   }

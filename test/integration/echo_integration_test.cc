@@ -85,6 +85,7 @@ TEST_P(EchoIntegrationTest, AddRemoveListener) {
   });
   listener_added_by_worker.waitReady();
   listener_added_by_manager.waitReady();
+  std::cout << "listeners ready" << std::endl;
 
   EXPECT_EQ(2UL, test_server_->server().listenerManager().listeners().size());
   uint32_t new_listener_port = test_server_->server()
@@ -95,12 +96,13 @@ TEST_P(EchoIntegrationTest, AddRemoveListener) {
                                    .localAddress()
                                    ->ip()
                                    ->port();
-
+  std::cout << "write hello to port " << new_listener_port << std::endl;
   Buffer::OwnedImpl buffer("hello");
   std::string response;
   RawConnectionDriver connection(
       new_listener_port, buffer,
       [&](Network::ClientConnection&, const Buffer::Instance& data) -> void {
+        std::cout << "response: " << data.toString() << std::endl;
         response.append(data.toString());
         connection.close();
       },
@@ -111,17 +113,23 @@ TEST_P(EchoIntegrationTest, AddRemoveListener) {
   // Remove the listener.
   ConditionalInitializer listener_removed;
   test_server_->setOnWorkerListenerRemovedCb(
-      [&listener_removed]() -> void { listener_removed.setReady(); });
+      [&listener_removed]() -> void { std::cout << "listener remove ready" << std::endl; listener_removed.setReady(); });
   test_server_->server().dispatcher().post([this]() -> void {
+    std::cout << "listener remove requested" << std::endl;
     EXPECT_TRUE(test_server_->server().listenerManager().removeListener("new_listener"));
   });
   listener_removed.waitReady();
+  std::cout << "listener removed" << std::endl;
 
   // Now connect. This should fail.
   RawConnectionDriver connection2(
       new_listener_port, buffer,
-      [&](Network::ClientConnection&, const Buffer::Instance&) -> void { FAIL(); }, version_);
+      [&](Network::ClientConnection&, const Buffer::Instance&) -> void { 
+        std::cout << "unexpected response" << std::endl;
+        FAIL();
+      }, version_);
   connection2.run();
+  std::cout << "done" << std::endl;
 }
 
 } // namespace Envoy

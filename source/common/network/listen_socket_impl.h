@@ -22,8 +22,11 @@ public:
   const Address::InstanceConstSharedPtr& localAddress() const override { return local_address_; }
   int fd() const override { return fd_; }
   void close() override {
+    std::cout << "close" << std::endl;
     if (fd_ != -1) {
+      std::cout << "actually closing" << std::endl;
       ::close(fd_);
+      std::cout << "actually closed" << std::endl;
       fd_ = -1;
     }
   }

@@ -271,6 +271,7 @@ ListenerImpl::ListenerImpl(const envoy::api::v2::Listener& config, const std::st
 }
 
 ListenerImpl::~ListenerImpl() {
+  std::cout << "destroy listenerImpl" << std::endl;
   // The filter factories may have pending initialize actions (like in the case of RDS). Those
   // actions will fire in the destructor to avoid blocking initial server startup. If we are using
   // a local init manager we should block the notification from trying to move us from warming to
@@ -278,6 +279,7 @@ ListenerImpl::~ListenerImpl() {
   // vector for clarity.
   initialize_canceled_ = true;
   destination_ports_map_.clear();
+  std::cout << "destroyed listenerImpl" << std::endl;
 }
 
 bool ListenerImpl::isWildcardServerName(const std::string& name) {
