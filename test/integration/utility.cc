@@ -105,7 +105,7 @@ IntegrationUtil::makeSingleRequest(uint32_t port, const std::string& method, con
 
 RawConnectionDriver::RawConnectionDriver(uint32_t port, Buffer::Instance& initial_data,
                                          ReadCallback data_callback,
-                                         Network::Address::IpVersion version) {
+                                         Network::Address::IpVersion version) : initial_data_(initial_data) {
   api_.reset(new Api::Impl(std::chrono::milliseconds(10000)));
   dispatcher_ = api_->allocateDispatcher();
   client_ = dispatcher_->createClientConnection(
@@ -114,7 +114,6 @@ RawConnectionDriver::RawConnectionDriver(uint32_t port, Buffer::Instance& initia
       Network::Address::InstanceConstSharedPtr(), Network::Test::createRawBufferSocket(), nullptr);
   client_->addReadFilter(Network::ReadFilterSharedPtr{new ForwardingFilter(*this, data_callback)});
   client_->addConnectionCallbacks(*this);
-  client_->write(initial_data, false);
   client_->connect();
   std::cout << "connect complete" << std::endl;
 }
@@ -136,7 +135,10 @@ void RawConnectionDriver::onEvent(Network::ConnectionEvent event) {
       event == Network::ConnectionEvent::LocalClose) {
     std::cout << "conn event: exit dispatcher" << std::endl;
     dispatcher_->exit();
+    return;
   }
+
+  client_->write(initial_data_, false);
 }
 
 WaitForPayloadReader::WaitForPayloadReader(Event::Dispatcher& dispatcher)

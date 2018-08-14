@@ -83,6 +83,7 @@ private:
     ReadCallback data_callback_;
   };
 
+  Buffer::Instance& initial_data_;
   Api::ApiPtr api_;
   Event::DispatcherPtr dispatcher_;
   Network::ClientConnectionPtr client_;
