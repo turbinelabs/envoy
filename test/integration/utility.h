@@ -52,7 +52,7 @@ typedef std::unique_ptr<BufferingStreamDecoder> BufferingStreamDecoderPtr;
 /**
  * Basic driver for a raw connection.
  */
-class RawConnectionDriver {
+class RawConnectionDriver : public Network::ConnectionCallbacks {
 public:
   typedef std::function<void(Network::ClientConnection&, const Buffer::Instance&)> ReadCallback;
 
@@ -61,6 +61,11 @@ public:
   ~RawConnectionDriver();
   void run();
   void close();
+
+  // Network::ConnectionCallbacks
+  void onEvent(Network::ConnectionEvent event) override;
+  void onAboveWriteBufferHighWatermark() override {}
+  void onBelowWriteBufferLowWatermark() override {}
 
 private:
   struct ForwardingFilter : public Network::ReadFilterBaseImpl {
@@ -81,7 +86,6 @@ private:
   Api::ApiPtr api_;
   Event::DispatcherPtr dispatcher_;
   Network::ClientConnectionPtr client_;
-  Event::TimerPtr timer_;
 };
 
 /**
