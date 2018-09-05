@@ -78,6 +78,7 @@ public:
 
   void close();
   void waitForData(const std::string& data, bool exact_match = true);
+  void waitForConnect();
   void waitForDisconnect(bool ignore_spurious_events = false);
   void waitForHalfClose();
   void readDisable(bool disabled);
@@ -100,6 +101,7 @@ private:
   std::shared_ptr<WaitForPayloadReader> payload_reader_;
   std::shared_ptr<ConnectionCallbacks> callbacks_;
   Network::ClientConnectionPtr connection_;
+  bool connected_{};
   bool disconnected_{};
   MockWatermarkBuffer* client_write_buffer_;
 };
